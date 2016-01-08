@@ -1,6 +1,6 @@
 <?php
 
-namespace Concrete\Controller\SinglePage\Dashboard\Reports;
+namespace Application\Controller\SinglePage\Dashboard\Reports;
 
 use Concrete\Core\File\File;
 use \Concrete\Core\Page\Controller\DashboardPageController;
