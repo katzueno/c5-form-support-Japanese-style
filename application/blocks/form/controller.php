@@ -1,6 +1,6 @@
 <?php
 
-namespace Concrete\Block\Form;
+namespace Application\Block\Form;
 
 use Concrete\Core\Block\BlockController;
 use Core;
@@ -477,6 +477,7 @@ class Controller extends BlockController
             }
             $replyToEmailAddress = $formFormEmailAddress;
             //loop through each question and get the answers
+            $sendConfirmationEmail = false;
             foreach ($rows as $row) {
                 //save each answer
                 $answerDisplay = '';
@@ -512,6 +513,7 @@ class Controller extends BlockController
                             $email = $txt->email($answer);
                             if (!empty($email)) {
                                 $replyToEmailAddress = $email;
+                                $sendConfirmationEmail = true;
                             }
                         }
                     }
@@ -570,6 +572,19 @@ class Controller extends BlockController
                 $mh->setSubject(t('%s Form Submission', $this->surveyName));
                 //echo $mh->body.'<br>';
                 @$mh->sendMail();
+                if ($sendConfirmationEmail) {
+                    $mh = null;
+                    $mh = Core::make('helper/mail');
+                    $mh->from($formFormEmailAddress);
+                    $mh->to($replyToEmailAddress);
+                    $mh->replyto($this->recipientEmail);
+                    $mh->addParameter('formName', $this->surveyName);
+                    $mh->addParameter('questionSetId', $this->questionSetId);
+                    $mh->addParameter('questionAnswerPairs', $questionAnswerPairs);
+                    $mh->load('block_form_submission_user',);
+                    $mh->setSubject(t('%s Form Submission', $this->surveyName));
+                    @$mh->sendMail();
+                }
             }
 
             if (!$this->noSubmitFormRedirect) {
