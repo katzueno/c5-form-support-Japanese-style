@@ -42,7 +42,7 @@ class Forms extends DashboardPageController
 
         if (!empty($_REQUEST['encoding']))
         {
-             $encoding = h($_REQUEST['encoding']);
+             $encoding = $_REQUEST['encoding'];
         }
 
         header("Content-Type: text/csv");
