@@ -210,8 +210,8 @@ else {
     <? } else: { ?>
 
         <div class="ccm-dashboard-header-buttons">
-            <a id="ccm-export-results" class="btn btn-success" href="<?= $view->action('csv')?>?qsid=<?=$questionSet ?>">
-                <i class='fa fa-download'></i> <?= t('Export to CSV') ?>
+            <a id="ccm-export-results" class="btn btn-success" href="<?php echo $view->action('csv')?>?qsid=<?php echo $questionSet ?>&encoding=SJIS">
+                <i class='fa fa-download'></i> <?php echo t('Export to CSV') ?>
             </a>
         </div>
 
