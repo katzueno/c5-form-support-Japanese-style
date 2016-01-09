@@ -52,4 +52,10 @@ Windows ユーザーは、Excel で CSV データを開くとき、Shift JIS で
 
 [https://github.com/katzueno/c5-form-support-Japanese-style](https://github.com/katzueno/c5-form-support-Japanese-style)
 
+## 宣伝
+
+コンクリートファイブジャパン株式会社では、企業・団体様の concrete5 サイト制作や制作会社様のプロジェクトのサポートを行っています。また制作会社様向けに「インテグレートパートナー制度」を設け、印刷物では通常は使用禁止している concrete5 のロゴが使えるパートナー制度の運営も行っています。
+
+http://concrete5.co.jp/
+
 以上
