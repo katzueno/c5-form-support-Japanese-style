@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Controller\SinglePage\Dashboard\Reports;
+namespace Concrete\Controller\SinglePage\Dashboard\Reports;
 
 use Concrete\Core\File\File;
 use \Concrete\Core\Page\Controller\DashboardPageController;
@@ -26,24 +26,22 @@ class Forms extends DashboardPageController
 
     public function csv()
     {
-        $dateHelper = Core::make('helper/date');
+        $dateHelper = Loader::helper('date');
         /* @var $dateHelper \Concrete\Core\Localization\Service\Date */
 
         $this->pageSize = 0;
         $this->loadSurveyResponses();
-        $textHelper = Core::make('helper/text');
+        $textHelper = Loader::helper('text');
 
         $questionSet = $this->get('questionSet');
         $answerSets = $this->get('answerSets');
         $questions = $this->get('questions');
         $surveys = $this->get('surveys');
 
-        $fileName = $textHelper->filterNonAlphaNum($surveys[$questionSet]['surveyName']);
+        $escapeCharacter = "'";
+        $charactersToEscape = array('-', '+', '=');
 
-        if (!empty($_REQUEST['encoding']))
-        {
-             $encoding = $_REQUEST['encoding'];
-        }
+        $fileName = $textHelper->filterNonAlphaNum($surveys[$questionSet]['surveyName']);
 
         header("Content-Type: text/csv");
         header("Cache-control: private");
@@ -51,150 +49,79 @@ class Forms extends DashboardPageController
         $date = date('Ymd');
         header("Content-Disposition: attachment; filename=" . $fileName . "_form_data_{$date}.csv");
 
+        $fp = fopen('php://output', 'w');
+
         // write the columns
-        
-        if ($encoding && function_exists(mb_convert_encoding)) {
-            
-            $fp = fopen('php://temp', 'w');
+        $row = array(
+            t('Submitted Date'),
+            t('User'),
+        );
 
-            $row = array(
-                mb_convert_encoding(t('Submitted Date'), $encoding),
-                mb_convert_encoding(t('User'), $encoding),
-            );
-        
-            foreach ($questions as $questionId => $question) {
-                if ($question['inputType'] == 'checkboxlist') {
-                    $options = explode('%%', $question['options']);
-                    foreach ($options as $opt) {
-                        $row[] = mb_convert_encoding($questions[$questionId]['question'], $encoding) . ': ' . mb_convert_encoding($opt, $encoding);
-                    }
-                } else {
-                    $row[] = mb_convert_encoding($questions[$questionId]['question'], $encoding);
+        foreach ($questions as $questionId => $question) {
+            if ($question['inputType'] == 'checkboxlist') {
+                $options = explode('%%', $question['options']);
+                foreach ($options as $opt) {
+                    $row[] = $questions[$questionId]['question'] . ': ' . $opt;
                 }
-            }
-    
-            fputcsv($fp, $row);
-    
-            // write the data
-            foreach ($answerSets as $answerSet) {
-                $row = array();
-                $row[] = $dateHelper->formatCustom($dateHelper::DB_FORMAT, $answerSet['created']);
-    
-                if ($answerSet['uID'] > 0) {
-                    $ui = UserInfo::getByID($answerSet['uID']);
-                    if (is_object($ui)) {
-                        $row[] = $ui->getUserName();
-                    }
-                } else {
-                    $row[] = '';
-                }
-    
-                foreach ($questions as $questionId => $question) {
-                    if ($question['inputType'] == 'checkboxlist') {
-                        $options = explode('%%', mb_convert_encoding($question['options'], $encoding));
-                        $subanswers = explode(',', mb_convert_encoding($answerSet['answers'][$questionId]['answer'], $encoding));
-                        for ($i = 1; $i <= count($options); $i++) {
-                            if (in_array(trim($options[$i - 1]), $subanswers)) {
-                                $row[] = 'x';
-                            } else {
-                                $row[] = '';
-                            }
-                        }
-                    } else if ($question['inputType'] == 'fileupload') {
-                        $fID = intval($answerSet['answers'][$questionId]['answer']);
-                        $file = File::getByID($fID);
-                        if ($fID && $file) {
-                            $fileVersion = $file->getApprovedVersion();
-                            $row[] = $fileVersion->getDownloadURL();
-                        } else {
-                            $row[] = t('File not found');
-                        }
-                    } else {
-                        $row[] = mb_convert_encoding($answerSet['answers'][$questionId]['answer'], $encoding) . mb_convert_encoding($answerSet['answers'][$questionId]['answerLong'], $encoding);
-                    }
-                }
-            }
-            fputcsv($fp, $row);
-            
-            rewind($fp);
-            if ($encoding =="SJIS") {
-                $csvContents = str_replace("\n", "\r\n", stream_get_contents($fp));
             } else {
-                $csvContents = $fp;
+                $row[] = $questions[$questionId]['question'];
             }
-            fclose($fp);
-            
-            $fpmain = fopen('php://output', 'w');
-            fwrite($fpmain, $csvContents);
-            fclose($fpmain);
-            die;
-
-        } else {
-
-            $fp = fopen('php://output', 'w');
-
-            $row = array(
-                t('Submitted Date'),
-                t('User'),
-            );
-        
-            foreach ($questions as $questionId => $question) {
-                if ($question['inputType'] == 'checkboxlist') {
-                    $options = explode('%%', $question['options']);
-                    foreach ($options as $opt) {
-                        $row[] = $questions[$questionId]['question'] . ': ' . $opt;
-                    }
-                } else {
-                    $row[] = $questions[$questionId]['question'];
-                }
-            }
-    
-            fputcsv($fp, $row);
-    
-            // write the data
-            foreach ($answerSets as $answerSet) {
-                $row = array();
-                $row[] = $dateHelper->formatCustom($dateHelper::DB_FORMAT, $answerSet['created']);
-    
-                if ($answerSet['uID'] > 0) {
-                    $ui = UserInfo::getByID($answerSet['uID']);
-                    if (is_object($ui)) {
-                        $row[] = $ui->getUserName();
-                    }
-                } else {
-                    $row[] = '';
-                }
-    
-                foreach ($questions as $questionId => $question) {
-                    if ($question['inputType'] == 'checkboxlist') {
-                        $options = explode('%%', $question['options']);
-                        $subanswers = explode(',', $answerSet['answers'][$questionId]['answer']);
-                        for ($i = 1; $i <= count($options); $i++) {
-                            if (in_array(trim($options[$i - 1]), $subanswers)) {
-                                $row[] = 'x';
-                            } else {
-                                $row[] = '';
-                            }
-                        }
-                    } else if ($question['inputType'] == 'fileupload') {
-                        $fID = intval($answerSet['answers'][$questionId]['answer']);
-                        $file = File::getByID($fID);
-                        if ($fID && $file) {
-                            $fileVersion = $file->getApprovedVersion();
-                            $row[] = $fileVersion->getDownloadURL();
-                        } else {
-                            $row[] = t('File not found');
-                        }
-                    } else {
-                        $row[] = $answerSet['answers'][$questionId]['answer'] . $answerSet['answers'][$questionId]['answerLong'];
-                    }
-                }
-            }
-            fputcsv($fp, $row);
-            fclose($fp);
-            die;
         }
 
+        fputcsv($fp, $row);
+
+        // write the data
+        foreach ($answerSets as $answerSet) {
+            $row = array();
+            $row[] = $dateHelper->formatCustom($dateHelper::DB_FORMAT, $answerSet['created']);
+
+            if ($answerSet['uID'] > 0) {
+                $ui = UserInfo::getByID($answerSet['uID']);
+                if (is_object($ui)) {
+                    $row[] = $ui->getUserName();
+                }
+            } else {
+                $row[] = '';
+            }
+
+            foreach ($questions as $questionId => $question) {
+                if ($question['inputType'] == 'checkboxlist') {
+                    $options = explode('%%', $question['options']);
+                    $subanswers = explode(',', $answerSet['answers'][$questionId]['answer']);
+                    for ($i = 1; $i <= count($options); $i++) {
+                        if (in_array(trim($options[$i - 1]), $subanswers)) {
+                            $row[] = 'x';
+                        } else {
+                            $row[] = '';
+                        }
+                    }
+                } else {
+                    if ($question['inputType'] == 'fileupload') {
+                        $fID = intval($answerSet['answers'][$questionId]['answer']);
+                        $file = File::getByID($fID);
+                        if ($fID && $file) {
+                            $fileVersion = $file->getApprovedVersion();
+                            $row[] = $fileVersion->getDownloadURL();
+                        } else {
+                            $row[] = t('File not found');
+                        }
+                    } else {
+                        $answer = $answerSet['answers'][$questionId]['answer'] . $answerSet['answers'][$questionId]['answerLong'];
+
+                        if (in_array(substr($answer, 0, 1), $charactersToEscape)) {
+                            $row[] = $escapeCharacter . $answer;
+                        } else {
+                            $row[] = $answer;
+                        }
+                    }
+                }
+            }
+
+            fputcsv($fp, $row);
+        }
+
+        fclose($fp);
+        die;
     }
 
     private function loadSurveyResponses()
