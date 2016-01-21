@@ -1,5 +1,7 @@
 # 標準のメールフォームに確認メール送信機能とCSVを Shift JIS に変換する機能を追加する
 
+This is the sample script of concrete5 default form block to send a confirmation email and convert CSV Export data from UTF-8 to Shift JIS encoding which is Japanese standard.
+
 concrete5 に標準で同梱されているフォームブロックに、フォームの送信者へも確認メールを送ることができるようにするカスタマイズと、[管理画面] - [レポート] でできる CSV 出力が元々 UTF8 エンコーディングで、MS Excel で開くと文字化けしてしまうので Shift JIS の文字コードに変換して出力するカスタマイズのコードと実装の仕方を紹介します。
 
 ※ 尚、フォーム送信者へのメール通知機能は、次期バージョンで、標準機能として本体へ取り込まれるかもしれません。
@@ -13,7 +15,7 @@ concrete5 に標準で同梱されているフォームブロックに、フォ�
 
 サーバーが UTF8 の設定をしている UNIX 系のサーバーで設定する前提です。この実装による損害をうけても、一切の責任を負わないことに同意した方のみが使用してください。
 
-動作は 5.7.5.3 で確認しました。
+動作は 5.7.5.3 & 5.7.5.4 で確認しました。
 
 ## セットアップ方法
 
