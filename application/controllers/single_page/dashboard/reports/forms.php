@@ -91,8 +91,8 @@ class Forms extends DashboardPageController
     
                 foreach ($questions as $questionId => $question) {
                     if ($question['inputType'] == 'checkboxlist') {
-                        $options = mb_convert_encoding(explode('%%', $question['options']), $encoding);
-                        $subanswers = mb_convert_encoding(explode(',', $answerSet['answers'][$questionId]['answer']), $encoding);
+                        $options = explode('%%', mb_convert_encoding($question['options'], $encoding));
+                        $subanswers = explode(',', mb_convert_encoding($answerSet['answers'][$questionId]['answer'], $encoding));
                         for ($i = 1; $i <= count($options); $i++) {
                             if (in_array(trim($options[$i - 1]), $subanswers)) {
                                 $row[] = 'x';
