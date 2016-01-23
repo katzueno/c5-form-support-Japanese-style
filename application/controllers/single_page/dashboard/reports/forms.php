@@ -108,7 +108,7 @@ class Forms extends DashboardPageController
                             $fileVersion = $file->getApprovedVersion();
                             $row[] = $fileVersion->getDownloadURL();
                         } else {
-                            $row[] = t('File not found');
+                            $row[] = mb_convert_encoding(t('File not found'), $encoding);
                         }
                     } else {
                         $row[] = mb_convert_encoding($answerSet['answers'][$questionId]['answer'], $encoding) . mb_convert_encoding($answerSet['answers'][$questionId]['answerLong'], $encoding);
