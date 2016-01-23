@@ -114,8 +114,8 @@ class Forms extends DashboardPageController
                         $row[] = mb_convert_encoding($answerSet['answers'][$questionId]['answer'], $encoding) . mb_convert_encoding($answerSet['answers'][$questionId]['answerLong'], $encoding);
                     }
                 }
+                fputcsv($fp, $row);
             }
-            fputcsv($fp, $row);
             
             rewind($fp);
             if ($encoding =="SJIS") {
@@ -190,8 +190,8 @@ class Forms extends DashboardPageController
                         $row[] = $answerSet['answers'][$questionId]['answer'] . $answerSet['answers'][$questionId]['answerLong'];
                     }
                 }
+                fputcsv($fp, $row);
             }
-            fputcsv($fp, $row);
             fclose($fp);
             die;
         }
