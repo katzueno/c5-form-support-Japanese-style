@@ -1,21 +1,18 @@
-# 標準のメールフォームに確認メール送信機能とCSVを Shift JIS に変換する機能を追加する
+# 標準のメールフォームに確認メール送信機能を追加する
 
-This is the sample script of concrete5 default form block to send a confirmation email and convert CSV Export data from UTF-8 to Shift JIS encoding which is Japanese standard.
+This is the sample script of concrete5 default form block to send a confirmation email.
 
-concrete5 に標準で同梱されているフォームブロックに、フォームの送信者へも確認メールを送ることができるようにするカスタマイズと、[管理画面] - [レポート] でできる CSV 出力が元々 UTF8 エンコーディングで、MS Excel で開くと文字化けしてしまうので Shift JIS の文字コードに変換して出力するカスタマイズのコードと実装の仕方を紹介します。
-
-※ 尚、フォーム送信者へのメール通知機能は、次期バージョンで、標準機能として本体へ取り込まれるかもしれません。
+concrete5 に標準で同梱されているフォームブロックに、フォームの送信者へも確認メールを送ることができるようにするカスタマイズのコードと実装の仕方を紹介します。
 
 ## 内容
 
 - Replyto: オプションをつけたメールアドレスに確認メールを送るカスタマイズ
-- CSV ダウンロードを、UTF8 ではなくて Shift JIS + CRLF 改行で行うためのカスタマイズ
 
 ## 免責 & License
 
 サーバーが UTF8 の設定をしている UNIX 系のサーバーで設定する前提です。この実装による損害をうけても、一切の責任を負わないことに同意した方のみが使用してください。
 
-動作は 5.7.5.3 & 5.7.5.4 で確認しました。
+動作は 8.5.4 で確認しています。
 
 ## セットアップ方法
 
@@ -39,16 +36,7 @@ concrete5 に標準で同梱されているフォームブロックに、フォ�
 
 ### CSV を Shift JIS に変換するカスタマイズ例
 
-Windows ユーザーは、Excel で CSV データを開くとき、Shift JIS でないと文字化けしてしまいます。concrete5 は UTF8 をデフォルトで使っているため、Shift JIS に変換する必要があります。
-
-**[CSV の文字コード変換のカスタマイズ例](https://github.com/katzueno/c5-form-support-Japanese-style/commit/8d47f884003925d5b3931dc781c9a6bc36ef6523)** (GitHub上の Diff)
-
-- 管理画面のシングルページの view に、encoding パラメーターを Shift JIS として埋め込み (管理画面から変更不可)
-    - 本当は、文字コードを選べるようにしようとも考えましたが、標準のブロックでは元々から POST でデータのやり取りがされていなく、それを実現するには、構造を変えてテストする時間が必要だったので、今回は URL パラメーターとしてShift JIS 指定を埋め込むのみにしました。
-- 管理画面のシングルページの controller の form.php は基本的に csv() 関数のカスタマイズのみをカスタマイズしています。
-- encoding パラメーターがあった場合に新規の処理を、encoding パラメーターがない場合は従来の処理 (UTF-8) で CSV を出力するよう分岐
-- 各パラメーターを、URL で指定があった場合にエンコーディング変換するように設定
-- Shift JIS の時だけ、改行コードを UNIX 系の LF から、Windows の CRLF に変換するスクリプトを分岐実行
+concrete5 8.5.x 以降で「管理画面」-「システムと設定」-「ファイル」-「エクスポートオプション」にて BOM オプションを有効にすることによって、文字化けしなくなるため、以前あったカスタマイズを削除しました。
 
 ### コード
 
