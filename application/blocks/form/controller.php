@@ -307,7 +307,7 @@ class Controller extends CoreController
                     if (empty($mh->getSubject())) {
                         $mh->setSubject(t('%s Form Submission', $this->surveyName));
                     }
-　                  @$mh->sendMail();
+                    @$mh->sendMail();
                 }
             }
 
