@@ -311,8 +311,6 @@ class Controller extends CoreController
                 }
             }
 
-        }
-
             //launch form submission event with dispatch method
             $formEventData = [];
             $formEventData['bID'] = (int) ($this->bID);
