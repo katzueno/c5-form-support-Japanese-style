@@ -1,8 +1,8 @@
 # 標準のメールフォームに確認メール送信機能を追加する
 
-This is the sample script of concrete5 default form block to send a confirmation email.
+This is the sample script of Concrete CMS legacy form block to send a confirmation email.
 
-concrete5 に標準で同梱されているフォームブロックに、フォームの送信者へも確認メールを送ることができるようにするカスタマイズのコードと実装の仕方を紹介します。
+Concrete CMS (旧 concrete5) に標準で同梱されているフォームブロックに、フォームの送信者へも確認メールを送ることができるようにするカスタマイズのコードと実装の仕方を紹介します。
 
 ## 内容
 
@@ -12,7 +12,9 @@ concrete5 に標準で同梱されているフォームブロックに、フォ�
 
 サーバーが UTF8 の設定をしている UNIX 系のサーバーで設定する前提です。この実装による損害をうけても、一切の責任を負わないことに同意した方のみが使用してください。
 
-動作は 8.5.4 で確認しています。
+このバージョンは Concrete CMS 9.0.2 で動作確認しています。
+
+V8 の動作確認は、[8.5.4タグ](https://github.com/katzueno/c5-form-support-Japanese-style/tag/c8.5.4) をご覧ください。
 
 ## セットアップ方法
 

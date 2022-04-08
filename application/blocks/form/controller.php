@@ -3,6 +3,7 @@
 namespace Application\Block\Form;
 
 use Concrete\Block\Form\Controller as CoreController;
+use Concrete\Core\Block\BlockType\BlockType;
 use Concrete\Core\Block\BlockController;
 use Concrete\Core\Entity\File\Version;
 use Concrete\Core\User\User;
@@ -31,17 +32,17 @@ class Controller extends CoreController
             return false;
         }
 
-        $ip = Core::make('helper/validation/ip');
+        $ip = $this->app->make('failed_login');
         $this->view();
 
-        if ($ip->isBlacklisted()) {
+        if ($ip->isDenylisted()) {
             $this->set('invalidIP', $ip->getErrorMessage());
 
             return;
         }
 
-        $txt = Core::make('helper/text');
-        $db = Database::connection();
+        $txt = $this->app->make('helper/text');
+        $db = $this->app->make('database/connection');
 
         //question set id
         $qsID = (int) ($_POST['qsID']);
@@ -50,13 +51,13 @@ class Controller extends CoreController
         }
         $errors = [];
 
-        $token = Core::make('token');
+        $token = $this->app->make('token');
         if (!$token->validate('form_block_submit_qs_' . $qsID)) {
             $errors[] = $token->getErrorMessage();
         }
 
         //get all questions for this question set
-        $rows = $db->GetArray("SELECT * FROM {$this->btQuestionsTablename} WHERE questionSetId=? AND bID=? order by position asc, msqID", [$qsID, (int) ($this->bID)]);
+        $rows = $db->fetchAll("SELECT * FROM {$this->btQuestionsTablename} WHERE questionSetId=? AND bID=? order by position asc, msqID", [$qsID, (int) ($this->bID)]);
 
         if (!count($rows)) {
             throw new Exception(t("Oops, something is wrong with the form you posted (it doesn't have any questions)."));
@@ -66,7 +67,7 @@ class Controller extends CoreController
 
         // check captcha if activated
         if ($this->displayCaptcha) {
-            $captcha = Core::make('helper/validation/captcha');
+            $captcha = $this->app->make('helper/validation/captcha');
             if (!$captcha->check()) {
                 $errors['captcha'] = t('Incorrect captcha code');
                 $_REQUEST['ccmCaptchaCode'] = '';
@@ -76,7 +77,7 @@ class Controller extends CoreController
         foreach ($rows as $row) {
             if ($row['inputType'] == 'datetime') {
                 if (!isset($datetime)) {
-                    $datetime = Core::make('helper/form/date_time');
+                    $datetime = $this->app->make('helper/form/date_time');
                 }
                 $translated = $datetime->translate('Question' . $row['msqID']);
                 if ($translated) {
@@ -173,7 +174,7 @@ class Controller extends CoreController
             }
             $q = "insert into {$this->btAnswerSetTablename} (questionSetId, uID) values (?,?)";
             $db->query($q, [$qsID, $uID]);
-            $answerSetID = $db->Insert_ID();
+            $answerSetID = $db->lastInsertId();
             $this->lastAnswerSetId = $answerSetID;
 
             $questionAnswerPairs = [];
@@ -263,14 +264,14 @@ class Controller extends CoreController
             foreach ($questionAnswerPairs as $questionAnswerPair) {
                 $submittedData .= $questionAnswerPair['question'] . "\r\n" . $questionAnswerPair['answer'] . "\r\n" . "\r\n";
             }
-            $antispam = Core::make('helper/validation/antispam');
+            $antispam = $this->app->make('helper/validation/antispam');
             if (!$antispam->check($submittedData, 'form_block')) {
                 // found to be spam. We remove it
                 $foundSpam = true;
                 $q = "delete from {$this->btAnswerSetTablename} where asID = ?";
                 $v = [$this->lastAnswerSetId];
-                $db->Execute($q, $v);
-                $db->Execute("delete from {$this->btAnswersTablename} where asID = ?", [$this->lastAnswerSetId]);
+                $db->executeQuery($q, $v);
+                $db->executeQuery("delete from {$this->btAnswersTablename} where asID = ?", [$this->lastAnswerSetId]);
             }
 
             if ((int) ($this->notifyMeOnSubmission) > 0 && !$foundSpam) {
@@ -281,7 +282,7 @@ class Controller extends CoreController
                     $formFormEmailAddress = $adminUserInfo->getUserEmail();
                 }
 
-                $mh = Core::make('helper/mail');
+                $mh = $this->app->make('helper/mail');
                 $mh->to($this->recipientEmail);
                 $mh->from($formFormEmailAddress);
                 $mh->replyto($replyToEmailAddress);
@@ -326,7 +327,7 @@ class Controller extends CoreController
                 $targetPage = null;
                 if ($this->redirectCID > 0) {
                     $pg = Page::getByID($this->redirectCID);
-                    if (is_object($pg) && $pg->cID) {
+                    if (is_object($pg) && $pg->getCollectionID()) {
                         $targetPage = $pg;
                     }
                 }
