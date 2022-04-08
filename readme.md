@@ -14,7 +14,7 @@ Concrete CMS (旧 concrete5) に標準で同梱されているフォームブロ
 
 このバージョンは Concrete CMS 9.0.2 で動作確認しています。
 
-V8 の動作確認は、[8.5.4タグ](https://github.com/katzueno/c5-form-support-Japanese-style/tag/c8.5.4) をご覧ください。
+V8 の動作確認は、[8.5.4タグ](https://github.com/katzueno/c5-form-support-Japanese-style/releases/tag/c8.5.4) をご覧ください。
 
 ## セットアップ方法
 
